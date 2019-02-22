@@ -114,6 +114,12 @@ body {
     color: #5c6b80;
 }
 
+h2 {
+    text-align: center;
+    color: #3399cc;
+    border-bottom: solid #3399cc 2px;
+}
+
 h4 {
     margin: 0;
     line-height: 1.3:
@@ -151,15 +157,7 @@ h4 {
         
         <apex:outputPanel rendered="{!ShowJobName}" >
             <apex:outputPanel >
-                <apex:outputText value="{!job.Name}" styleClass="cssJobName" style="text-align: center !important; display: block;" />
-            </apex:outputPanel>
-        </apex:outputPanel>
-
-        <apex:outputPanel rendered="{!ShowDescription}" >
-            <apex:outputPanel >
-                <br/>
-                <apex:outputField value="{!job.GW_Volunteers__Description__c}" />
-                <br/>
+                <h2>{!job.Name}</h2>
             </apex:outputPanel>
         </apex:outputPanel>
 
@@ -253,43 +251,7 @@ h4 {
                     </div>
                 </apex:outputPanel>
             </apex:column>
-<!--
-            <apex:column rendered="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) > 0}" style="text-align: center;">
-                <apex:outputPanel rendered="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c != null && shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0 && DATEVALUE(shift.GW_Volunteers__Start_Date_Time__c) >= TODAY() && job.GW_Volunteers__External_Signup_Url__c == null}" >
-                    <div id="txtShiftStartDateTime1" style="height: 35px; width: 70px; text-align: center; text-decoration: none; color: #FFF; padding: 10px 15px; border: 2px solid #39c; background-color: #39c; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
-
-                        <apex:outputText value="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0)} / {!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) + NULLVALUE(shift.GW_Volunteers__Total_Volunteers__c, 0)}<br/>Spots Left" escape="false">
-                        </apex:outputText>
-                    </div>
-                </apex:outputPanel>
-            </apex:column>
-
-            <apex:column rendered="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) > 0}">
-                <apex:outputPanel rendered="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c != 0 && DATEVALUE(shift.GW_Volunteers__Start_Date_Time__c) >= TODAY() && job.GW_Volunteers__External_Signup_Url__c == null}" >
-                    <div id="txtShiftStartDateTime1" style="height: 35px; width: 325px; display:table-cell; vertical-align:middle; text-align: center; text-decoration: none; color: #FFF; padding: 10px 15px; border: 2px solid #39c; background-color: #39c; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
-                        <script>
-                            var strDT = '{!shift.GW_Volunteers__System_Note__c}';
-                            if (strDT == '') strDT = JobShiftDateTimeString('{!shift.GW_Volunteers__Start_Date_Time__c}', '{!shift.GW_Volunteers__Duration__c}'); 
-                            document.write(strDT);
-                        </script>&nbsp;&nbsp;&nbsp;
-                    </div>
-                </apex:outputPanel>
-            </apex:column>
-
-            <apex:column rendered="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) > 0}">
-                <apex:outputPanel rendered="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c != 0 && DATEVALUE(shift.GW_Volunteers__Start_Date_Time__c) >= TODAY() && job.GW_Volunteers__External_Signup_Url__c == null && shift.GW_Volunteers__Description__c != null}" >
-                    <div id="txtShiftStartDateTime1" style="height: 35px; text-align: center; text-decoration: none; color: #FFF; padding: 10px 15px; border: 2px solid #39c; background-color: #39c; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
-                        <apex:outputField value="{!shift.GW_Volunteers__Description__c}"/>
-                    </div>
-                </apex:outputPanel>
-
-            </apex:column>
--->
         </apex:dataTable>
-
-        <br/>
-        <br/> 
-        <apex:outputPanel rendered="{!NOT(fCalendar)}" ><hr/></apex:outputPanel>
         </div>
     </apex:repeat>
     <apex:outputText value="{!$Label.gw_volunteers__labelmessagenojobs}" rendered="{!NOT(VolunteersHasJobs)}" />
