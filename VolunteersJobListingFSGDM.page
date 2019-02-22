@@ -77,6 +77,22 @@
 
         // strDateFormat is a page parameter (set by the controller) that allows some simple date formatting.
         var strStartDate = MyDateFormat(dtStart, '{!JSENCODE(strDateFormat)}');
+        
+        return strStartDate + ' ' + JobTimeSpanFormat(dt, duration);
+    }
+
+    function JobFormatDate(dt) {
+        console.log('formatting ', dt)
+        var dtStart = new Date(dt);        
+
+        return j$.datepicker.formatDate("DD, MM d, yy", dtStart);
+    }
+
+    function JobTimeSpanFormat(dt, duration) {
+        var dtStart = new Date(dt);        
+
+        // strDateFormat is a page parameter (set by the controller) that allows some simple date formatting.
+        var strStartDate = MyDateFormat(dtStart, '{!JSENCODE(strDateFormat)}');
                 
         // strTimeFormat is a page parameter (set by the controller) that allows some simple time formatting.
         var strStartTime = MyTimeFormat(dtStart, '{!JSENCODE(strTimeFormat)}');
@@ -84,10 +100,47 @@
         var dtEnd = new Date(dt);
         dtEnd.setMinutes(dtEnd.getMinutes() + (duration * 60));
         var strEndTime = MyTimeFormat(dtEnd, '{!JSENCODE(strTimeFormat)}');
-        return strStartDate + ' ' + strStartTime + ' - ' + strEndTime;
-    }      
+
+        return strStartTime + ' - ' + strEndTime
+    }
       
 </script>
+
+<style>
+body {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 100%;
+    line-height: 1.5;
+    color: #5c6b80;
+}
+
+h4 {
+    margin: 0;
+    line-height: 1.3:
+}
+
+.signup-btn {
+    border: solid #3399cc 1px;
+    color: #3399cc;
+    background: white;
+    font-weight: bold;
+    padding: .5rem 1rem;
+    display: inline-block;
+}
+
+.signup-slot {
+    margin-bottom: 1rem;
+}
+
+.signup-duration {
+    padding-bottom: .5rem;
+}
+
+.bullet {
+    padding: 0 .4rem;
+}
+</style>
+
     <apex:outputPanel rendered="{!fCalendar}" layout="block" style="text-align:right">
         <apex:outputLink value="{!$Site.CurrentSiteUrl + IF(fPersonalSite, 'GW_Volunteers__PersonalSiteJobCalendar', 'GW_Volunteers__JobCalendar') + '?' + strParams}" id="linkCal1" >{!$Label.gw_volunteers__labelreturntocalendar}</apex:outputLink>
     </apex:outputPanel>
@@ -176,20 +229,32 @@
         <apex:dataTable value="{!job.GW_Volunteers__Volunteer_Job_Slots__r}" var="shift" id="rptShifts" columnClasses="cssJobShiftSignup" rendered="{!ShowShifts}" columnsWidth="15%, 15%, 35%, 35%" cellpadding="10px" >
             <apex:column rendered="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) > 0}" style="text-align:center;" html-data-volunteers-needed="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c}">
                 <apex:outputPanel rendered="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c != 0 && DATEVALUE(shift.GW_Volunteers__Start_Date_Time__c) >= TODAY() && job.GW_Volunteers__External_Signup_Url__c == null}" >
-                    <a href="SignUp" style="text-decoration: none; color: #39c; width: 104px; padding: 19px 25px; border: 2px solid #39c; background-color: transparent; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" onclick="
+                    <div class="signup-slot">
+                    <h4>
+                    <script>
+                        var formattedDate = JobFormatDate('{!shift.GW_Volunteers__Start_Date_Time__c}');
+                        document.write(formattedDate);
+                    </script>
+                    </h4>
+                    <div class="signup-duration">
+                    <script>
+                        var formattedDate = JobTimeSpanFormat('{!shift.GW_Volunteers__Start_Date_Time__c}', '{!shift.GW_Volunteers__Duration__c}');
+                        document.write(formattedDate);
+                    </script><span class="bullet">•</span><apex:outputText value="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0)}" /> more volunteers still needed!
+                    </div>
+                    <a href="SignUp" class="signup-btn" onclick="
                         var x = '{!shift.GW_Volunteers__System_Note__c}';   
                         if (x == '') x = JobShiftDateTimeString('{!shift.GW_Volunteers__Start_Date_Time__c}', '{!shift.GW_Volunteers__Duration__c}');
                         OpenSignUpDlg(event.clientX, event.clientY, '{!job.Id}', '{!shift.Id}', '{!JSENCODE(job.Name)}', x); 
                         return false;"
                         onmouseover="this.style.backgroundColor='#39c';this.style.color='#FFF';return true;"
                         onmouseout="this.style.backgroundColor='transparent';this.style.color='#39C';return true;"
-                        >{!$Label.GW_Volunteers__labelLinkSignUp}</a>
+                        >{!LOWER($Label.GW_Volunteers__labelLinkSignUp)}</a>
+                    </div>
                 </apex:outputPanel>
-                &nbsp;&nbsp;&nbsp;
             </apex:column>
-
+<!--
             <apex:column rendered="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) > 0}" style="text-align: center;">
-                <!-- Open slots -->
                 <apex:outputPanel rendered="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c != null && shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0 && DATEVALUE(shift.GW_Volunteers__Start_Date_Time__c) >= TODAY() && job.GW_Volunteers__External_Signup_Url__c == null}" >
                     <div id="txtShiftStartDateTime1" style="height: 35px; width: 70px; text-align: center; text-decoration: none; color: #FFF; padding: 10px 15px; border: 2px solid #39c; background-color: #39c; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
 
@@ -200,7 +265,6 @@
             </apex:column>
 
             <apex:column rendered="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) > 0}">
-                <!-- If the user can sign-up - change the color on the date/time -->
                 <apex:outputPanel rendered="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c != 0 && DATEVALUE(shift.GW_Volunteers__Start_Date_Time__c) >= TODAY() && job.GW_Volunteers__External_Signup_Url__c == null}" >
                     <div id="txtShiftStartDateTime1" style="height: 35px; width: 325px; display:table-cell; vertical-align:middle; text-align: center; text-decoration: none; color: #FFF; padding: 10px 15px; border: 2px solid #39c; background-color: #39c; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
                         <script>
@@ -220,7 +284,7 @@
                 </apex:outputPanel>
 
             </apex:column>
-
+-->
         </apex:dataTable>
 
         <br/>
@@ -294,14 +358,6 @@
                 <apex:outputLink styleClass="cssDisclaimerLink" value="{!$Label.Volunteer_Disclaimer_General}" id="generalWaiver" target="_blank">By clicking 'Sign Up' you agree to this disclaimer.</apex:outputLink>
                 <br/><br/>
             </apex:outputPanel>
-
-
-
-            <!-- <apex:Messages style="color:red;" />        -->
-<!--             <p>         
-            <apex:outputText value="{!strJobDisplayName}" id="txtJobDisplayName" styleClass="cssSignupDisplayName" style="border-style:none; background-color:transparent; width:100%;" /><br/>
-            <apex:outputText value="{!strShiftDisplayName}" id="txtShiftDisplayName" styleClass="cssSignupDisplayName" style="border-style:none; background-color:transparent; width:100%;" /><br/>
-            </p> -->
             
             <!-- before calling the action method, clear the return value fields so we can detect validation failures. -->                          
             <apex:outputPanel style="text-align: center; display: block;">
