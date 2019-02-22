@@ -15,8 +15,6 @@ class HoursImport_Plugin
         add_action('init', array(__CLASS__, 'process_csv'));
     }
 
-
-
     public function hours_import_plugin_setup_menu()
     {
         add_management_page(
@@ -112,13 +110,46 @@ class HoursImport_Plugin
 
         if (!empty($_FILES['volunteer_hours_csv']['tmp_name'])) {
             $filename = $_FILES['volunteer_hours_csv']['tmp_name'];
-            $hours_csv_str =  file_get_contents($filename);
+            $hours_csv_str = file_get_contents($filename);
             $hours_array = str_getcsv($hours_csv_str);
+
+            HoursImport_Plugin::write_csv_to_my_creds($hours_array);
 
             HoursImport_Plugin::set_last_upload_date();
 
             echo "success";
         }
+    }
+
+    public static function write_csv_to_my_creds($hours_array) {
+        $mycred = mycred('points');
+
+        for ($i = 4; $i < count($hours_array); $i += 4) {
+            // $i + 1 (timestamp for hours) and $i + 3 (blank) are ignored.
+            $email = $hours_array[$i];
+            $hours = $hours_array[$i + 2];
+
+            if (!$mycred->exclude_user($email)) {
+                $mycred->add_creds(
+                    'csv_update',
+                    HoursImport_Plugin::convert_email_to_id($email),
+                    HoursImport_Plugin::convert_hours_to_points($hours),
+                    'Points for hours worked'
+                );
+            }
+
+            if ($i > 20) {
+                break; // todo Remove once we have everything working.
+            }
+        }
+    }
+
+    public static function convert_email_to_id($email) {
+        return $email; // todo Lookup the email and get its user id.
+    }
+
+    public static function convert_hours_to_points($hours) {
+        return $hours; // todo Figure out the ratio of hours to points.
     }
 
     public static function set_last_upload_date()
