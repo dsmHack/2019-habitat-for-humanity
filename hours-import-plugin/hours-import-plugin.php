@@ -1,6 +1,8 @@
 <?php
 /**
  *  Plugin Name: Volunteer Hours to Points Import
+ *  Author: Travis Smith (travis.smith@workiva.com)
+ *  
  */
 
 
@@ -46,17 +48,12 @@ class HoursImport_Plugin
     public function process_csv()
     {
         if (!empty($_FILES['volunteer_hours_csv']['tmp_name'])) {
-            // Setup settings variables
-            $filename = $_FILES['users_csv']['tmp_name'];
-            $results = self::import_csv($filename);
-            echo $results;
-        }
-    }
+            $filename = $_FILES['volunteer_hours_csv']['tmp_name'];
+            $hours_csv_str =  file_get_contents($filename);
+            $hours_array = str_getcsv($hours_csv_str);
 
-    public function import_csv($filename)
-    {
-        //do import logic here
-        return "super successful";
+            echo "success";
+        }
     }
 }
 
