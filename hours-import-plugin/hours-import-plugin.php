@@ -32,26 +32,84 @@ class HoursImport_Plugin
     public function volunteer_hours_import_page_init()
     {
         echo '<h2>Import volunteer hours from a CSV file</h2>
+
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Click link to Salesforce report below</li>
+                <li>Set beginning date of Salesforce report filter to the "Last upload performed at" date below</li>
+                <li>Set end date of Salesforce report filter to the current day</li>
+                <li>Click "Export Details" on Salesforce report. Set "Export File Format" to "Comma Delimited (.csv)"</li>
+                <li>Click "Export"</li>
+                <li>Browse for the CSV file that downloaded from Salesforce and click "Import"</li>
+            </ol>
+
             <table class="form-table">
-            <form method="post" action="" enctype="multipart/form-data">
             <table class="form-table">
             <tr>
-            <p>Last upload was performed at: </p>' .
+                <th scope="row">
+                    Last upload performed at:
+                </th>
+                <td>' .
             get_option('volunteer_hour_last_upload_date') .
-            '</tr>
+            '</td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    Link to Salesforce Report:
+                </th>
+                <td>
+                <a href="' . get_option('volunteer_hour_salesforce_report_link') . '">' .
+            get_option('volunteer_hour_salesforce_report_link') .
+            '</a>
+                </br>
+                <a onclick="showSFLinkEditForm()">(edit)</a>
+                <div id="SFLinkEditForm" style="display: none">
+                <form method="post" action="" enctype="application/x-www-form-urlencoded">
+                    <input type="text" id="sf-link" name="sf-link-to-report" value="https://..... "/>    
+                    <input type="submit" class="button" value="Update" name="Update" />
+                </form>
+                </div>
+                </td>
+            </tr>
+            <form method="post" action="" enctype="multipart/form-data">
 			<tr valign="top">
 				<th scope="row"><label for="volunteer_hours_csv">CSV file</label></th>
-				<td>
+                <td>
 					<input type="file" id="volunteer_hours_csv" name="volunteer_hours_csv" /><br />
 				</td>
             </tr>
+            <tr>
+                <td>
+                    <input type="submit" class="button-primary" value="Import" name="Submit" />      
+                </td>
+            </tr>
+            </form>
             </table>' .
-            '<input type="submit" class="button-primary" value="Import" name="Submit" />
-	</form>';
+            '
+    ';
+
+        echo '
+        <script>
+        function showSFLinkEditForm() {
+            var x = document.getElementById("SFLinkEditForm");
+            if (x.style.display === "none") {
+              x.style.display = "block";
+            } else {
+              x.style.display = "none";
+            }
+          }
+        </script>
+    
+    ';
     }
 
     public function process_csv()
     {
+        if (isset($_POST['sf-link-to-report'])) {
+            $sf_url = $_POST['sf-link-to-report'];
+            update_option('volunteer_hour_salesforce_report_link', $sf_url);
+        }
+
         if (!empty($_FILES['volunteer_hours_csv']['tmp_name'])) {
             $filename = $_FILES['volunteer_hours_csv']['tmp_name'];
             $hours_csv_str =  file_get_contents($filename);
