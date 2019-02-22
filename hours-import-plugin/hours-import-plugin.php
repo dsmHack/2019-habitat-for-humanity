@@ -149,7 +149,7 @@ class HoursImport_Plugin
     }
 
     public static function convert_hours_to_points($hours) {
-        return $hours; // todo Figure out the ratio of hours to points.
+        return 12.5 * $hours;
     }
 
     public static function set_last_upload_date()
