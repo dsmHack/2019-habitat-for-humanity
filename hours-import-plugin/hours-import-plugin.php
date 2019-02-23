@@ -152,7 +152,7 @@ class HoursImport_Plugin
             // Convert the email to a WooCommerce user id.
             // If the conversion fails, we can create a new account for the user.
             // This gives us the user's new id, allowing the process to continue.
-            $user_id = emailsToUserIDs[$email];
+            $user_id = $emailsToUserIDs[$email];
             if (is_null($user_id)) {
                 $user_id = HoursImport_Plugin::create_woo_commerce_user_id($email);
             }
