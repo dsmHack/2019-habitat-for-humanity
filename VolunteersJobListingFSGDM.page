@@ -22,7 +22,7 @@
             j$('#dlgSignUp').dialog('open');
         } else if ('{!JSENCODE(volunteerHoursIdSignUp)}' != '') { // display thank you!
             j$('#dlgThankYou').dialog("option", "position", [(document.documentElement.offsetWidth /2)-250, 20] );          
-            j$('#dlgThankYou').dialog('open');      
+            j$('#dlgThankYou').dialog('open');     
         } 
          
     });
@@ -82,7 +82,6 @@
     }
 
     function JobFormatDate(dt) {
-        console.log('formatting ', dt)
         var dtStart = new Date(dt);        
 
         return j$.datepicker.formatDate("DD, MM d, yy", dtStart);
@@ -107,20 +106,20 @@
 </script>
 
 <style>
-body {
+*{
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: 100%;
+    color: #232426;
+    font-size: 14px;
     line-height: 1.5;
-    color: #5c6b80;
 }
 
-h2 {
+h2.signup {
     text-align: center;
     color: #3399cc;
     border-bottom: solid #3399cc 2px;
 }
 
-h4 {
+h4.signup {
     margin: 0;
     line-height: 1.3:
 }
@@ -150,8 +149,95 @@ h4 {
     color: #999;
     font-size: 15.5px;
 }
-</style>
 
+.ui-dialog {
+    background: white;
+}
+
+.ui-dialog-titlebar {
+    background: #3399cc;
+    border-color: #3399cc;
+}
+
+.ui-dialog-title {
+    color: white;
+}
+
+.dialog p{
+    text-align:center;
+    margin:0 20% 14px;
+}
+
+.dialog a:link, .dialog a:visited:link {
+    -webkit-tap-highlight-color: rgba(0,0,0,.3);
+}
+.dialog a, .dialog a:visited {
+    color: #39c;
+}
+.dialog a:focus, .dialog a:hover, .dialog a:visited:focus, .dialog a:visited:hover {
+    color: #2b81ab;
+}
+h2.dialog{
+    font-size: 30px;
+    color: #232426;
+    font-weight: 700;
+    text-transform: lowercase;
+    text-align: center;
+    margin: .6em auto 0;
+}
+
+.dialog-timeframe {
+    text-align: center;
+}
+
+.dialog h4{
+    font-size: 18px;
+    color: #232426;
+    font-weight: 700;
+    text-align: center;
+}
+
+.dialog table{
+    width:100%;
+}
+
+.dialog .cssLabelsColumn{
+    text-align:right;
+    width: 40%;
+}
+
+.dialog .cssInputFields {
+    width: 80%;
+}
+
+.dialog .crew-leader-description {
+    color: gray;
+}
+
+.dialog label{
+  font-weight:700;
+}
+
+.required{
+  color:#EE2724;
+}
+
+.dialog input{
+  padding:7px;
+  margin:3px 0;
+  background: #FFFFFF;
+  border: 1px solid #C5C5C5;
+  border-radius: 5px;
+}
+.help{
+  color: #8A8A8A;
+}
+
+.dialog .submit{
+  text-align: center;
+}
+</style>
+<div id="signup-list">
     <apex:outputPanel rendered="{!fCalendar}" layout="block" style="text-align:right">
         <apex:outputLink value="{!$Site.CurrentSiteUrl + IF(fPersonalSite, 'GW_Volunteers__PersonalSiteJobCalendar', 'GW_Volunteers__JobCalendar') + '?' + strParams}" id="linkCal1" >{!$Label.gw_volunteers__labelreturntocalendar}</apex:outputLink>
     </apex:outputPanel>
@@ -161,13 +247,14 @@ h4 {
         <p class="signup-scroll-down">Volunteering with your organization? <a href="javascript:window.scrollTo(0,document.body.scrollHeight);">Scroll down to the bottom.</a></p>
     </apex:outputPanel>
 
+    <!-- List of available jobs to sign up for -->
     <apex:repeat value="{!listVolunteerJobs}" var="job" id="rptJobs" >
         <apex:variable var="containerClass" value="{!IF(job.GW_Volunteers__External_Signup_Url__c != null, 'externalJob', IF(jobAllShiftsInThePast, 'pastEvent', ''))}" />
         <div id="jobContainer" class="{!containerClass}">
         
         <apex:outputPanel rendered="{!ShowJobName}" >
             <apex:outputPanel >
-                <h2>{!job.Name}</h2>
+                <h2 class="signup">{!job.Name}</h2>
             </apex:outputPanel>
         </apex:outputPanel>
 
@@ -213,12 +300,10 @@ h4 {
                     </td>
                 </tr>
             </table>
-            <!-- <input type="button" value="{!$Label.gw_volunteers__labelbuttonsignup}"  class="cssJobShiftSignup btn" onclick="OpenSignUpDlg(event.clientX, event.clientY, '{!job.Id}', '', '{!JSENCODE(job.Name)}', ''); return false;"/> -->
         </apex:outputPanel>
         
         <apex:outputPanel id="panelExternalJob" rendered="{!job.GW_Volunteers__External_Signup_Url__c != null && NOT(jobAllShiftsInThePast)}" >
             <apex:outputLink target="_blank" styleClass="externalJobLink" value="{!job.GW_Volunteers__External_Signup_Url__c}" >Sign Up (external site)</apex:outputLink>
-            <!-- <apex:outputLink target="_blank" styleClass="externalJobLink" value="{!job.GW_Volunteers__External_Signup_Url__c}" >{!$Label.GW_Volunteers__labelFindVolunteers}</apex:outputLink> -->
             <br/><br/>
         </apex:outputPanel>
 
@@ -239,7 +324,7 @@ h4 {
             <apex:column rendered="{!NULLVALUE(shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c, 0) > 0}" style="text-align:center;" html-data-volunteers-needed="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c}">
                 <apex:outputPanel rendered="{!shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c != 0 && DATEVALUE(shift.GW_Volunteers__Start_Date_Time__c) >= TODAY() && job.GW_Volunteers__External_Signup_Url__c == null}" >
                     <div class="signup-slot">
-                    <h4>
+                    <h4 class="signup">
                     <script>
                         var formattedDate = JobFormatDate('{!shift.GW_Volunteers__Start_Date_Time__c}');
                         document.write(formattedDate);
@@ -265,101 +350,143 @@ h4 {
         </apex:dataTable>
         </div>
     </apex:repeat>
+    
+    <!-- Message displayed if no jobs -->
     <apex:outputText value="{!$Label.gw_volunteers__labelmessagenojobs}" rendered="{!NOT(VolunteersHasJobs)}" />
+    
+    <!-- Calendar link -->
     <apex:outputPanel rendered="{!fCalendar}" layout="block" style="text-align:right">
         <apex:outputLink value="{!$Site.CurrentSiteUrl + IF(fPersonalSite, 'GW_Volunteers__PersonalSiteJobCalendar', 'GW_Volunteers__JobCalendar') + '?' + strParams}" id="linkCal2" >{!$Label.gw_volunteers__labelreturntocalendar}</apex:outputLink>     
     </apex:outputPanel>
+</div> <!-- end of primary content div -->
 
-<!-- this div contains the signup dialog we'll use jQuery to display -->
-<div id="dlgSignUp" title="{!$Label.gw_volunteers__labeltitlejobsignup}" style="font-size: 1.5em;">
+<!-- Signup dialog (displayed if a Sign Up link above is clicked) -->
+<div id="dlgSignUp" class="dialog" title="{!$Label.gw_volunteers__labeltitlejobsignup}" style="font-size: 1.5em;">
     <apex:form styleClass="cssForm" id="frmSignUp" > 
-
-        <p style="text-align: center;">                     
-            <apex:outputText value="{!strJobDisplayName}" id="txtJobDisplayName" styleClass="cssSignupDisplayName" style="border-style:none; background-color:transparent; width:100%;" />
-            <apex:outputText value=" Sign Up" id="txtJobDisplayName22" styleClass="cssSignupDisplayName" style="border-style:none; background-color:transparent; width:100%;" />
-            <br/>
-            <apex:outputText value="{!strShiftDisplayName}" id="txtShiftDisplayName" styleClass="cssSignupDisplayName" style="border-style:none; background-color:transparent; width:100%;" /><br/>
-        </p>
-
-        <apex:outputPanel id="panelSignUp" > 
-
-            <table columns="2" style="display: block; padding: 20px;">
-                <!-- first we specify the fields we require for Contact matching -->
+        <h2 class="dialog-timeframe"><span>Sign up for </span><apex:outputText value=" {!strShiftDisplayName}" id="txtShiftDisplayName" /></h2>
+        <p><a href="#" onclick="j$('#dlgSignUp').dialog('close');">Choose a different date (close).</a></p>
+        <table align="center"  columns="2">
+            <tr>
+            <td class="cssLabelsColumn">
+                <label for="txtFirstName">First Name <span class="required">*</span></label>
+            </td>
+            <td class="cssInputFieldsColumn" style="padding-left: 10px;">
+                <apex:inputField value="{!contact.FirstName}" id="txtFirstName" required="true" styleClass="cssInputFields" />
+            </td>
+            </tr>
+            <tr>
+            <td class="cssLabelsColumn">
+                <label for="txtLastName">Last Name <span class="required">*</span></label>
+            </td>
+            <td class="cssInputFieldsColumn" style="padding-left: 10px;">
+                <apex:inputField value="{!contact.LastName}" id="txtLastName" required="true" styleClass="cssInputFields" />
+            </td>
+            </tr>
+            <tr>
+            <td class="cssLabelsColumn">
+                <label for="txtEmail">Email <span class="required">*</span></label>
+            </td>
+            <td class="cssInputFieldsColumn" style="padding-left: 10px;">
+                <apex:inputField value="{!contact.Email}" id="txtEmail" required="true" styleClass="cssInputFields" />
+            </td>
+            </tr>
+            <apex:repeat value="{!$ObjectType.Contact.FieldSets.GW_Volunteers__VolunteersJobListingFS}" var="f" >
+                <apex:outputPanel rendered="{!TRIM(f.Label) == 'Emergency Contact'}">
                 <tr>
-                    <td class="cssLabelsColumn" style="padding-right: 10px; width: 250px;" ><apex:outputLabel value="{!$ObjectType.Contact.Fields.FirstName.Label + '*'}" for="txtFirstName" /></td>
-                    <td class="cssInputFieldsColumn" style="padding-left: 10px;"><apex:inputField value="{!contact.FirstName}" id="txtFirstName" required="true" styleClass="cssInputFields" /></td>
+                    <td colspan="2">
+                    <h4>Emergency Contact</h4>
+                    </td>
                 </tr>
-                <tr>    
-                    <td class="cssLabelsColumn" style="padding-right: 10px; width: 250px;" ><apex:outputLabel value="{!$ObjectType.Contact.Fields.LastName.Label + '*'}" for="txtLastName" /></td>
-                    <td class="cssInputFieldsColumn" style="padding-left: 10px;"><apex:inputField value="{!contact.LastName}" id="txtLastName" required="true" styleClass="cssInputFields" /></td>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!contains(f.Label, 'I agree to')}">
+                <tr>
+                    <td colspan="2">
+                        <h4>Waiver of Liability</h4>
+                    </td>
                 </tr>
-                <tr>            
-                    <td class="cssLabelsColumn" style="padding-right: 10px; width: 250px;" ><apex:outputLabel value="{!$ObjectType.Contact.Fields.Email.Label + '*'}" for="txtEmail" /></td>
-                    <td class="cssInputFieldsColumn" style="padding-left: 10px;"><apex:inputField value="{!contact.Email}" id="txtEmail" required="true" styleClass="cssInputFields" /></td>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!contains(f.Label, 'I am over 18')}">
+                <tr>
+                    <td colspan="2">
+                        <h4>Under 18?</h4>
+                        <p>16 &amp; 17 year olds can volunteer with an adult (requires an additional sign up)
+                        and a printed waiver (see below) signed by your parent or guardian.
+                        </p>
+                    </td>
                 </tr>
-                
-                <!--  now add optional fields the user can specify for Contacts -->
-                <apex:repeat value="{!$ObjectType.Contact.FieldSets.GW_Volunteers__VolunteersJobListingFS}" var="f" >
-                    <tr>
-                        <td class="cssLabelsColumn" style="padding-right: 10px; width: 250px;" ><apex:outputLabel value="{!f.Label + IF(OR(f.DBRequired, f.Required), '*', '')}" /></td>
-                        <td class="cssInputFieldsColumn" style="padding-left: 10px;"><apex:inputField value="{!Contact[f]}" required="{!IF(OR(f.DBRequired, f.Required), 'true', 'false')}"
-                            styleClass="{!IF(f.Type == 'Long Text Area', 'cssInputFields cssTextArea', 'cssInputFields')}" /></td>
-                    </tr>
-                </apex:repeat>        
-        
-                <!--  now add optional fields the user can specify for VolunteerHours -->
-                <apex:repeat value="{!$ObjectType.GW_Volunteers__Volunteer_Hours__c.FieldSets.GW_Volunteers__VolunteersJobListingFS}" var="f" >
-                    <tr>
-                        <td class="cssLabelsColumn" style="padding-right: 10px; width: 250px;" ><apex:outputLabel value="{!f.Label + IF(OR(f.DBRequired, f.Required), '*', '')}" /></td>
-                        <td class="cssInputFieldsColumn" style="padding-left: 10px;"><apex:inputField value="{!vhours[f]}" required="{!IF(OR(f.DBRequired, f.Required), 'true', 'false')}"
-                            styleClass="{!IF(f.Type == 'Long Text Area', 'cssInputFields cssTextArea', 'cssInputFields')}" /></td>
-                    </tr>
-                </apex:repeat>
-                
-                <!-- add optional File Upload -->
-                <tr>            
-                    <td class="cssLabelsColumn" style="padding-right: 10px; width: 250px;" ><apex:outputLabel value="{!strFileUploadLabel}" for="txtFileUpload" /></td>
-                    <td class="cssInputFieldsColumn" style="padding-left: 10px;"><apex:inputFile styleClass="cssInputFields" rendered="{!strFileUploadLabel!=null}" value="{!attachment.body}" filename="{!attachment.name}" id="txtFileUpload" /></td>
-                </tr>                       
-            </table>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!contains(f.Label, 'Crew Leader')}">
+                <tr>
+                    <td colspan="2">
+                        <h4>Crew Leader</h4>
+                    </td>
+                </tr>
+                </apex:outputPanel>
+                          
+                <tr>
+                    <td class="cssLabelsColumn">
+                        <apex:outputLabel value="{!f.Label}" />
+                        <apex:outputPanel rendered="{!OR(f.DBRequired, f.Required)}">
+                            <span class="required">*</span>
+                        </apex:outputPanel>
+                    </td>
+                    <td class="cssInputFieldsColumn" style="padding-left: 10px;">
+                        <apex:inputField value="{!Contact[f]}" required="{!IF(OR(f.DBRequired, f.Required), 'true', 'false')}"
+                        styleClass="{!IF(f.Type == 'Long Text Area', 'cssInputFields cssTextArea', 'cssInputFields')}" />
+                        
+                        <apex:outputPanel rendered="{!contains(f.Label, 'Crew Leader')}">
+                            <div class="crew-leader-description">
+                                Crew Leaders receive training to guide groups of volunteers.  No previous construction skills needed.
+                            </div>
+                        </apex:outputPanel>
+                    </td>
+                </tr>
 
-            <!-- Disclaimers go here: -->
-            <apex:outputPanel style="text-align: center; display: block;">
-                <br/><br/>
-                <apex:outputLink styleClass="cssDisclaimerLink" value="{!$Label.Volunteer_Disclaimer_Minor}" id="youthWaiver" target="_blank">Print and bring the youth waiver, if applicable.</apex:outputLink>
-                <br/><br/>
-                <apex:outputLink styleClass="cssDisclaimerLink" value="{!$Label.Volunteer_Disclaimer_General}" id="generalWaiver" target="_blank">By clicking 'Sign Up' you agree to this disclaimer.</apex:outputLink>
-                <br/><br/>
-            </apex:outputPanel>
-            
-            <!-- before calling the action method, clear the return value fields so we can detect validation failures. -->                          
-            <apex:outputPanel style="text-align: center; display: block;">
-                <br/><br/>
-                <apex:commandButton id="btnSubmit" value="{!$Label.gw_volunteers__labelbuttonsignup}" onclick="
+                <apex:outputPanel rendered="{!contains(f.Label, 'I agree to')}">
+                <tr>
+                    <td colspan="2">
+                        <h4>Waivers</h4>
+                        <p>
+                            <apex:outputLink styleClass="cssDisclaimerLink" value="{!$Label.Volunteer_Disclaimer_General}" id="generalWaiver" target="_blank">
+                                Download and read the waiver.
+                            </apex:outputLink>
+                            By clicking “Sign Up” you agree to this disclaimer.
+                        </p>
+                        <p>
+                            <span>Under 18? </span><apex:outputLink styleClass="cssDisclaimerLink" value="{!$Label.Volunteer_Disclaimer_Minor}" id="youthWaiver" target="_blank">Download and print the youth waiver</apex:outputLink>
+                            and have your parent or guardian sign it.
+                        </p>
+                    </td>
+                </tr>
+                </apex:outputPanel>  
+            </apex:repeat>
+        </table>
+        
+        <div class="submit">
+            <a href="#" id="btnSubmit" onclick="
                     j$('input[name$=btnSubmit]').attr('disabled', 'disabled');
                     j$('input[name$=txtContactIdSignUp]').val(''); 
                     j$('input[name$=txtVHIdSignUp]').val('');
                     VolunteerShiftSignUp();
                     return false;" 
-                immediate="false" status="statusSignUp" styleClass="cssButton btn" />      &nbsp;&nbsp;&nbsp;&nbsp;        
-                <apex:commandButton value="{!$Label.gw_volunteers__labelbuttoncancel}" immediate="true" onclick="j$('#dlgSignUp').dialog('close');" action="{!CancelSignUp}" styleClass="cssButton btn" />            
-            </apex:outputPanel>
-            <apex:actionStatus startText="{! '  ' + $Label.GW_Volunteers__labelMessageSaving}" stopText="" id="statusSignUp" startStyle="color:green; font-style:italic" stopStyle="color:black;" />                             
-        </apex:outputPanel>
-                
+                    onmouseover="this.style.backgroundColor='#39c';this.style.color='#FFF !important';return true;"
+                        onmouseout="this.style.backgroundColor='transparent';this.style.color='#39C !important';return true;"
+                immediate="false" status="statusSignUp" class="signup-btn">{!$Label.gw_volunteers__labelbuttonsignup}</a>
+        </div>
+        
         <apex:actionFunction name="VolunteerShiftSignUp" action="{!VolunteerShiftSignUp}" status="statusSignUp" />         
         <apex:actionFunction name="ClearVolunteerHoursIdSignUp" action="{!ClearVolunteerHoursIdSignUp}" />      
         <apex:inputHidden value="{!jobIdSignUp}" id="txtJobId" />               
         <apex:inputHidden value="{!shiftIdSignUp}" id="txtShiftId" /><br/>  
         <apex:inputHidden value="{!contactIdSignUp}" id="txtContactIdSignUp" />
         <apex:inputHidden value="{!volunteerHoursIdSignUp}" id="txtVHIdSignUp" />
-    </apex:form>  
+    </apex:form>
 </div> <!-- end of the signup dialog -->
 
 <!-- this div contains the thank you dialog we'll use jQuery to display -->
 <div id="dlgThankYou" title="{!$Label.GW_Volunteers__labelTitleJobSignup}">
             <p class="cssThankYou">{!$Label.GW_Volunteers__labelVolunteerSignupThankYou}</p>
-            <input type="button" value="{!$Label.GW_Volunteers__labelButtonClose}" onclick="j$('#dlgThankYou').dialog('close'); return false;" class="cssButton btn" />
+            <a href="#" class="signup-btn" onclick="j$('#dlgThankYou').dialog('close'); return false;">{!$Label.GW_Volunteers__labelButtonClose}</a>
 </div> <!-- end of the thank you dialog -->
 </div>
 </apex:page>
