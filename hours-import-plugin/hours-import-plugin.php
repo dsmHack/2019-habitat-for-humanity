@@ -155,6 +155,7 @@ class HoursImport_Plugin
             $user_id = $emailsToUserIDs[$email];
             if (is_null($user_id)) {
                 $user_id = HoursImport_Plugin::create_woo_commerce_user_id($email);
+                $emailsToUserIDs[$email] = $user_id;
             }
 
             // todo Determine if add_creds is still okay to call even if $user_id isn't in the table.
@@ -164,10 +165,6 @@ class HoursImport_Plugin
                 HoursImport_Plugin::convert_hours_to_points($hours),
                 'import volunteer hours'
             );
-
-            if ($i > 3) {
-                break; // todo Remove once we have everything working.
-            }
         }
     }
 
