@@ -38,8 +38,20 @@ class HoursImport_Plugin {
     // The user's hours will be fetched by Salesforce and added to mycred.
     public static function handle_user_login($login) {
         $user = get_userdatabylogin($login);
-        $hours = HoursImport_Plugin::fetch_hours($user->user_email, '', '');
+        $start_date = HoursImport_Plugin::fetch_start_date($user);
+        $end_date = date('Y-M-D');
+
+        $hours = HoursImport_Plugin::fetch_hours($user->user_email, $start_date, $end_date);
         HoursImport_Plugin::write_mycred($user->id, $hours);
+    }
+
+    // Fetches the last known start date for the user.
+    public static function fetch_start_date($user) {
+        $start_date = get_user_meta($user_id, 'last_fetch_date', true);
+        if (is_null($start_date)) {
+            $start_date = '2019-Jan-01';
+        }
+        return $start_date;
     }
 
     // Returns the hours the user has worked between the two dates.
@@ -57,6 +69,13 @@ class HoursImport_Plugin {
             12.5 * $hours,
             'add volunteer hours'
         );
+
+        update_user_meta($user_id, 'last_fetch_date', today());
+    }
+
+
+    public static function today() {
+        return date('Y-M-D');
     }
 }
 
