@@ -117,7 +117,8 @@ class HoursImport_Plugin
     ';
 
         // TODO don't do this here ofc
-        // HoursImport_Plugin::get_all_woo_commerce_users();
+        // print_r(HoursImport_Plugin::get_all_woo_commerce_users_ids());
+        // print_r(HoursImport_Plugin::add_new_woo_commerce_user());
     }
 
     public function process_csv() {
@@ -190,8 +191,9 @@ class HoursImport_Plugin
         return 12.5 * $hours;
     }
 
-    // TODO this is just an example of how we can get all users. We don't need all this data, it's excessive.
-    public static function get_all_woo_commerce_users() {
+    // Gets a map of customer emails to user ids
+    public static function get_all_woo_commerce_users_ids() {
+        // https://woocommerce.github.io/woocommerce-rest-api-docs/#list-all-customers
         $woocommerce = new Client(
             URL,
             CONSUMER_KEY,
@@ -202,7 +204,14 @@ class HoursImport_Plugin
             ]
         );
 
-        print_r($woocommerce->get('customers'));
+        $customers = $woocommerce->get('customers');
+        $emailsToUserIDs = [];
+        foreach ($customers as $customer) {
+            $email = $customer->email;
+            $user_id = $customer->id;
+            $emailsToUserIDs[$email] = $user_id;
+        }
+        return $emailsToUserIDs;
     }
 
     // TODO this is just an example of what we want to do for create_woo_commerce_id
@@ -218,10 +227,10 @@ class HoursImport_Plugin
         );
 
         $data = [
-            'email' => 'john.doe@example.com',
+            'email' => 'john.doe2@example.com',
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'username' => 'john.doe',
+            'username' => 'john.doe2',
             'password' => 'create_password',
         ];
 
