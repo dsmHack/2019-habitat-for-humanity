@@ -1478,4 +1478,26 @@ function get_id_by_slug($page_slug) {
     }
 } 
 
+function WOO_login_redirect( $redirect, $user ) {
+
+  $redirect_page_id = url_to_postid( $redirect );
+  $checkout_page_id = wc_get_page_id( 'checkout' );
+
+  if ($redirect_page_id == $checkout_page_id) {
+    return $redirect;
+  }
+
+  return get_permalink(get_option('woocommerce_myaccount_page_id')) . 'orders/';
+
+}
+
+add_action('woocommerce_login_redirect', 'WOO_login_redirect', 10, 2);
+
+function WOO_account_menu_items($items) {
+  unset($items['dashboard']);
+  return $items;            
+}
+
+add_filter ('woocommerce_account_menu_items', 'WOO_account_menu_items');
+
 /* DON'T DELETE THIS CLOSING TAG */ ?>
