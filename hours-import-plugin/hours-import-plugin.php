@@ -48,6 +48,15 @@ class User
     //
     // This is pulled from WooCommerce. A map of ID to Points is stored in MyCred
     public $id = '';
+
+    // Gets the payload for creating a WooCommerce account as a batch response.
+    function get_woocommerce_create_payload() {
+        return [
+            'email' => $this->email,
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+        ],
+    }
 }
 
 class HoursImport_Plugin
@@ -267,6 +276,42 @@ class HoursImport_Plugin
 
         $response = $woocommerce->post('customers', $data);
         return $response->id;
+    }
+
+    // Creates a batch of WooCommerce accounts when given a map of emails to User objects.
+    public static function batch_create_woo_commerce_users($emails_to_new_users) {
+        // https://woocommerce.github.io/woocommerce-rest-api-docs/#batch-update-customers
+        $woocommerce = new Client(
+            URL,
+            CONSUMER_KEY,
+            CONSUMER_SECRET_KEY,
+            [
+                'wp_api' => true,
+                'version' => 'wc/v3'
+            ]
+        );
+
+        $create_payloads = [];
+        foreach ($emails_to_new_users as $email => $user) {
+            array_push($create_payloads, $user->get_woocommerce_create_payload());
+        }
+
+
+        $data = [
+            'create' => [
+                $create_payloads
+            ],
+        ];
+
+        $new_user_emails_to_ids = [];
+        $response = $woocommerce->post('customers/batch', $data);
+        $created_accounts = $response->create;
+        foreach ($created_accounts as $created_account) {
+            $id = $created_account->id;
+            $email = $created_account->email;
+            $new_user_emails_to_ids[$email] = $id;
+        }
+        return $new_user_emails_to_ids;
     }
 
     // Converts the given hours to "points", where "points" is the currency users
