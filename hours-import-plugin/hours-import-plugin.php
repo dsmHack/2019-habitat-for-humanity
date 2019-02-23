@@ -292,49 +292,24 @@ class HoursImport_Plugin
                 'version' => 'wc/v3'
             ]
         );
-
         $data = [
             'email' => $email,
         ];
-
         $response = $woocommerce->post('customers', $data);
         return $response->id;
     }
 
     // Creates a batch of WooCommerce accounts when given a map of emails to User objects.
+    //
+    // Returns a map of new user emails to ids
     public static function batch_create_woo_commerce_users($emails_to_new_users) {
-        // https://woocommerce.github.io/woocommerce-rest-api-docs/#batch-update-customers
-        $woocommerce = new Client(
-            URL,
-            CONSUMER_KEY,
-            CONSUMER_SECRET_KEY,
-            [
-                'wp_api' => true,
-                'version' => 'wc/v3'
-            ]
-        );
-
-        $create_payloads = [];
-        foreach ($emails_to_new_users as $email => $user) {
-            array_push($create_payloads, $user->get_woocommerce_create_payload());
+        $emails_to_user_ids = [];
+        foreach ($emails_to_new_users as $email => $new_user) {
+            $user_id = HoursImport_Plugin::create_woo_commerce_user_id($email);
+            $new_user->id = $user_id;
+            //$emails_to_user_ids[$email] = $user_id
         }
-
-
-        $data = [
-            'create' => [
-                $create_payloads
-            ],
-        ];
-
-        $new_user_emails_to_ids = [];
-        $response = $woocommerce->post('customers/batch', $data);
-        $created_accounts = $response->create;
-        foreach ($created_accounts as $created_account) {
-            $id = $created_account->id;
-            $email = $created_account->email;
-            $new_user_emails_to_ids[$email] = $id;
-        }
-        return $new_user_emails_to_ids;
+        return $emails_to_user_ids;
     }
 
     // Converts the given hours to "points", where "points" is the currency users
@@ -345,21 +320,12 @@ class HoursImport_Plugin
 
     // Gets a map of customer emails to user ids from the WooCommerce table
     public static function get_all_woo_commerce_users_ids() {
-        // https://woocommerce.github.io/woocommerce-rest-api-docs/#list-all-customers
-        $woocommerce = new Client(
-            URL,
-            CONSUMER_KEY,
-            CONSUMER_SECRET_KEY,
-            [
-                'wp_api' => true,
-                'version' => 'wc/v3'
-            ]
-        );
+        $customers = get_users([
+            'role' => 'Customer',
+        ]);
 
-        $customers = $woocommerce->get('customers');
-        $emailsToUserIDs = [];
         foreach ($customers as $customer) {
-            $email = $customer->email;
+            $email = $customer->user_email;
             $user_id = $customer->id;
             $emailsToUserIDs[$email] = $user_id;
         }
