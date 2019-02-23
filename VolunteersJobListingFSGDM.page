@@ -145,10 +145,20 @@ h4 {
 .bullet {
     padding: 0 .4rem;
 }
+
+.signup-scroll-down {
+    color: #999;
+    font-size: 15.5px;
+}
 </style>
 
     <apex:outputPanel rendered="{!fCalendar}" layout="block" style="text-align:right">
         <apex:outputLink value="{!$Site.CurrentSiteUrl + IF(fPersonalSite, 'GW_Volunteers__PersonalSiteJobCalendar', 'GW_Volunteers__JobCalendar') + '?' + strParams}" id="linkCal1" >{!$Label.gw_volunteers__labelreturntocalendar}</apex:outputLink>
+    </apex:outputPanel>
+
+    <apex:outputPanel rendered="{!$CurrentPage.parameters.campaignId == '70161000000QC7I'}">
+        <!-- Add a link to scroll to the bottom of the list where specific org signups live -->
+        <p class="signup-scroll-down">Volunteering with your organization? <a href="javascript:window.scrollTo(0,document.body.scrollHeight);">Scroll down to the bottom.</a></p>
     </apex:outputPanel>
 
     <apex:repeat value="{!listVolunteerJobs}" var="job" id="rptJobs" >
@@ -166,6 +176,7 @@ h4 {
             <apex:outputField value="{!job.GW_Volunteers__Skills_Needed__c}" />
             </p>  
         </apex:outputPanel>
+
         <apex:outputPanel rendered="{!ShowLocationAddress && job.GW_Volunteers__Location_Street__c <> null}" >
             <p class="cssJobLocationAddress">
             <apex:outputField value="{!job.GW_Volunteers__Location_Street__c}" /><br/>
