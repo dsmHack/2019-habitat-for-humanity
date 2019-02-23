@@ -12,6 +12,8 @@
 // php composer-setup.php
 // php -r "unlink('composer-setup.php');"
 // php composer.phar require automattic/woocommerce
+//
+// More information about composer can be found at https://getcomposer.org/download/
 require __DIR__ . '/vendor/autoload.php';
 use Automattic\WooCommerce\Client;
 
@@ -21,6 +23,32 @@ const CONSUMER_KEY = "ck_401ee38fe27f4419a6840b3c0b248444fbbcd770";
 const CONSUMER_SECRET_KEY = "cs_d56b356d4e9d46eb1576fdc5609e1394214ae130";
 
 const URL = "http://localhost:8888/wordpress/";
+
+class User
+{
+    // The user's first name for the WooCommerce customer account.
+    //
+    // This is pulled from the Salesforce CSV.
+    public $first_name = '';
+
+    // The user's last name for the WooCommerce customer account.
+    //
+    // This is pulled from the Salesforce CSV.
+    public $last_name = '';
+
+    // The sum of hours worked (pulled from the Salesforce CSV).
+    public $hours_worked = 0;
+
+    // The user's email address for the WooCommerce customer account.
+    //
+    // This is pulled from the Salesforce CSV.
+    public $email = '';
+
+    // The user's id.
+    //
+    // This is pulled from WooCommerce. A map of ID to Points is stored in MyCred
+    public $id = '';
+}
 
 class HoursImport_Plugin
 {
@@ -125,8 +153,8 @@ class HoursImport_Plugin
 
         if (!empty($_FILES['volunteer_hours_csv']['tmp_name'])) {
             $filename = $_FILES['volunteer_hours_csv']['tmp_name'];
-            $hours_csv_str = file_get_contents($filename);
-            $hours_array = str_getcsv($hours_csv_str);
+            $csv_file = file($filename);
+            $hours_array = str_getcsv($csv_file);
 
             $emailsToUserIDs = HoursImport_Plugin::get_all_woo_commerce_users_ids();
             HoursImport_Plugin::write_csv_to_my_creds($hours_array, $emailsToUserIDs);
@@ -135,6 +163,50 @@ class HoursImport_Plugin
 
             echo "success";
         }
+    }
+
+    // Takes in a file handle on a CSV, and returns a map of emails (strings) to Users (class)
+    function flatten_csv($csv_file) {
+        $emails_to_users = [];
+        $first_name_header_field_index = 1;
+        $last_name_header_field_index = 2;
+        $hours_worked_index = 7;
+        $email_index = 8;
+
+        $header_row = true;
+
+        while (($row = fgetcsv($csv_file, 1000, ",")) !== FALSE) {
+            if ($header_row) {
+                $header_row = false;
+                continue;
+            }
+            $email = preg_replace('/\s+/' , '', $row[$email_index]);
+            // If the user doesn't have an email, we can't create an account for them
+            if ($email == "") {
+                continue;
+            }
+
+            // If we've already parsed this user, just add their hours worked.
+            $hours_worked = (float) preg_replace('/\s+/' , '', $row[$hours_worked_index]);
+            if (array_key_exists($email, $emails_to_users)) {
+                $user = $emails_to_users[$email];
+                $user->hours_worked = $user->hours_worked + $hours_worked;
+                continue;
+            }
+
+            // If they're a new user, add them to the array
+            $last_name = preg_replace('/\s+/' , '', $row[$last_name_header_field_index]);
+            $first_name = preg_replace('/\s+/' , '', $row[$first_name_header_field_index]);
+
+            $user = new User();
+            $user->email = $email;
+            $user->hours_worked = $hours_worked;
+            $user->last_name = $last_name;
+            $user->first_name = $first_name;
+            $emails_to_users[$email] = $user;
+        }
+
+        return $emails_to_users;
     }
 
     // Writes the csv to the myCREDs table.
