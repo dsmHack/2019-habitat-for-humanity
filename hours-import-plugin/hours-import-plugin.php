@@ -165,7 +165,6 @@ class HoursImport_Plugin
         }
     }
 
-    // Takes in a file handle on a CSV, and returns a map of emails (strings) to Users (class)
     function flatten_csv($csv_file) {
         $emails_to_users = [];
         $first_name_header_field_index = 1;
