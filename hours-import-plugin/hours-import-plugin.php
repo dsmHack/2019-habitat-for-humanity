@@ -2,9 +2,25 @@
 /**
  *  Plugin Name: Volunteer Hours to Points Import
  *  Author: Travis Smith (travis.smith@workiva.com)
- *  
+ *
  */
 
+// To get this import to work properly, first cd into plugin's directory and run the following:
+//
+// php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+// php -r "if (hash_file('sha384', 'composer-setup.php') === '48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+// php composer-setup.php
+// php -r "unlink('composer-setup.php');"
+// php composer.phar require automattic/woocommerce
+require __DIR__ . '/vendor/autoload.php';
+use Automattic\WooCommerce\Client;
+
+// WooCommerce -> Settings -> Advanced -> REST API -> Permissions: Read/Write -> Generate API key
+// These keys were generated from my local environment, and will need to be modified for the correct environment
+const CONSUMER_KEY = "ck_401ee38fe27f4419a6840b3c0b248444fbbcd770";
+const CONSUMER_SECRET_KEY = "cs_d56b356d4e9d46eb1576fdc5609e1394214ae130";
+
+const URL = "http://localhost:8888/wordpress/";
 
 class HoursImport_Plugin
 {
@@ -99,6 +115,9 @@ class HoursImport_Plugin
         </script>
     
     ';
+
+        // TODO don't do this here ofc
+        // HoursImport_Plugin::get_all_woo_commerce_users();
     }
 
     public function process_csv() {
@@ -169,6 +188,44 @@ class HoursImport_Plugin
     // see when attempting to purchase products.
     public static function convert_hours_to_points($hours) {
         return 12.5 * $hours;
+    }
+
+    // TODO this is just an example of how we can get all users. We don't need all this data, it's excessive.
+    public static function get_all_woo_commerce_users() {
+        $woocommerce = new Client(
+            URL,
+            CONSUMER_KEY,
+            CONSUMER_SECRET_KEY,
+            [
+                'wp_api' => true,
+                'version' => 'wc/v3'
+            ]
+        );
+
+        print_r($woocommerce->get('customers'));
+    }
+
+    // TODO this is just an example of what we want to do for create_woo_commerce_id
+    public static function add_new_woo_commerce_user() {
+        $woocommerce = new Client(
+            URL,
+            CONSUMER_KEY,
+            CONSUMER_SECRET_KEY,
+            [
+                'wp_api' => true,
+                'version' => 'wc/v3'
+            ]
+        );
+
+        $data = [
+            'email' => 'john.doe@example.com',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'username' => 'john.doe',
+            'password' => 'create_password',
+        ];
+
+        print_r($woocommerce->post('customers', $data));
     }
 
     // Writes the current date to the database.
