@@ -73,7 +73,7 @@ class HoursImport_Plugin
 			<tr valign="top">
 				<th scope="row"><label for="volunteer_hours_csv">CSV file</label></th>
                 <td>
-					<input type="file" id="volunteer_hours_csv" name="volunteer_hours_csv" /><br />
+					<input type="file" accept=".csv" id="volunteer_hours_csv" name="volunteer_hours_csv" /><br />
 				</td>
             </tr>
             <tr>
