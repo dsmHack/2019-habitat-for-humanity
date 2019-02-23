@@ -101,8 +101,7 @@ class HoursImport_Plugin
     ';
     }
 
-    public function process_csv()
-    {
+    public function process_csv() {
         if (isset($_POST['sf-link-to-report'])) {
             $sf_url = $_POST['sf-link-to-report'];
             update_option('volunteer_hour_salesforce_report_link', $sf_url);
@@ -121,22 +120,33 @@ class HoursImport_Plugin
         }
     }
 
+    // Writes the csv to the myCREDs table.
     public static function write_csv_to_my_creds($hours_array) {
+        // This creates a myCRED instance for the "points" currency type.
         $mycred = mycred('points');
 
+        // We then iterate over our CSV (that has been converted to an array).
+        // The first four elements in the array are headers, so we can safely ignore them.
         for ($i = 4; $i < count($hours_array); $i += 4) {
             // $i + 1 (timestamp for hours) and $i + 3 (blank) are ignored.
             $email = $hours_array[$i];
             $hours = $hours_array[$i + 2];
 
-            if (!$mycred->exclude_user($email)) {
-                $mycred->add_creds(
-                    'csv_update',
-                    HoursImport_Plugin::convert_email_to_id($email),
-                    HoursImport_Plugin::convert_hours_to_points($hours),
-                    'Points for hours worked'
-                );
+            // Convert the email to a WooCommerce user id.
+            // If the conversion fails, we can create a new account for the user.
+            // This gives us the user's new id, allowing the process to continue.
+            $user_id = HoursImport_Plugin::convert_email_to_id($email);
+            if (is_null($user_id)) {
+                $user_id = HoursImport_Plugin::create_woo_commerce_user_id($email);
             }
+
+            // todo Determine if add_creds is still okay to call even if $user_id isn't in the table.
+            $mycred->add_creds(
+                'csv_import',
+                $user_id,
+                HoursImport_Plugin::convert_hours_to_points($hours),
+                'import volunteer hours'
+            );
 
             if ($i > 20) {
                 break; // todo Remove once we have everything working.
@@ -144,16 +154,25 @@ class HoursImport_Plugin
         }
     }
 
+    // Converts the given email to their WooCommerce user id.
     public static function convert_email_to_id($email) {
         return $email; // todo Lookup the email and get its user id.
     }
 
+    // Creates a WooCommerce user id for the given email.
+    // The id is then returned.
+    public static function create_woo_commerce_user_id($email) {
+        return $email; // todo Create the id for the email and return it here.
+    }
+
+    // Converts the given hours to "points", where "points" is the currency users
+    // see when attempting to purchase products.
     public static function convert_hours_to_points($hours) {
         return 12.5 * $hours;
     }
 
-    public static function set_last_upload_date()
-    {
+    // Writes the current date to the database.
+    public static function set_last_upload_date() {
         $current_date = date('m/d/y h:i:s a');
         update_option('volunteer_hour_last_upload_date', $current_date . " " . date_default_timezone_get(), get, true);
     }
