@@ -9,7 +9,6 @@ class HoursImport_Plugin {
     // Registers the WordPress callbacks.
     public static function init() {
         add_action('admin_menu', array(__CLASS__, 'handle_admin_menu'));
-        add_action('user_register', array(__CLASS__, 'handle_register_user'));
         add_action('wp_login', array(__CLASS__, 'handle_user_login'));
     }
 
@@ -35,48 +34,22 @@ class HoursImport_Plugin {
         // todo Write the credentials to a table?
     }
 
-    // Callback for when a user registers.
-    public function handle_register_user() {
-        $user = wp_get_current_user();
-
-        // todo
-        // requests all hours this email has worked since today's date
-        // records the the date on this user's metainfo
-
-        echo '
-        <script>
-            console.log("user registered: ' . $user->user_email . '");
-        </script>
-        ';
+    // On user login, we fetch the current user with the login parameter.
+    // The user's hours will be fetched by Salesforce and added to mycred.
+    public static function handle_user_login($login) {
+        $user = get_userdatabylogin($login);
+        $hours = HoursImport_Plugin::fetch_hours($user->user_email, '', '');
+        HoursImport_Plugin::write_mycred($user->id, $hours);
     }
 
-    public function handle_user_login() {
-        $user = wp_get_current_user();
-
-        // todo
-        // requests all hours this email has worked since this user's metainfo
-
-        echo '
-        <script>
-            console.log("user logged in: ' . $user->user_email . '");
-        </script>
-        ';
-    }
-
-    // Fetches the hours for the given user for the given start date and end date.
-    //
-    // This will update the user's points in myCRED and the last time this was called.
-    public function log_hours($user, $start_date, $end_date) {
-
-        // todo
-        // make GET request
-        // send request
-        // write result to myCRED
-
+    // Returns the hours the user has worked between the two dates.
+    public static function fetch_hours($email, $start_date, $end_date) {
+        // todo Make a GET request to salesforce and get the hours. Return them.
+        return 1;
     }
 
     // Adds the given hours to the given user id in the myCRED table.
-    public function write_mycred($user_id, $hours) {
+    public static function write_mycred($user_id, $hours) {
         $mycred = mycred('points');
         $mycred->add_creds(
             'add_hours',
