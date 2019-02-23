@@ -146,7 +146,7 @@ class HoursImport_Plugin
         // The first four elements in the array are headers, so we can safely ignore them.
         for ($i = 4; $i < count($hours_array); $i += 4) {
             // $i + 1 (timestamp for hours) and $i + 3 (blank) are ignored.
-            $email = $hours_array[$i];
+            $email = preg_replace('/\s+/', '', $hours_array[$i]); // strip whitespace on email (newlines from parse)
             $hours = $hours_array[$i + 2];
 
             // Convert the email to a WooCommerce user id.
@@ -165,7 +165,7 @@ class HoursImport_Plugin
                 'import volunteer hours'
             );
 
-            if ($i > 20) {
+            if ($i > 3) {
                 break; // todo Remove once we have everything working.
             }
         }
