@@ -115,10 +115,6 @@ class HoursImport_Plugin
         </script>
     
     ';
-
-        // TODO don't do this here ofc
-        // print_r(HoursImport_Plugin::get_all_woo_commerce_users_ids());
-        // print_r(HoursImport_Plugin::add_new_woo_commerce_user());
     }
 
     public function process_csv() {
@@ -132,7 +128,8 @@ class HoursImport_Plugin
             $hours_csv_str = file_get_contents($filename);
             $hours_array = str_getcsv($hours_csv_str);
 
-            HoursImport_Plugin::write_csv_to_my_creds($hours_array);
+            $emailsToUserIDs = HoursImport_Plugin::get_all_woo_commerce_users_ids();
+            HoursImport_Plugin::write_csv_to_my_creds($hours_array, $emailsToUserIDs);
 
             HoursImport_Plugin::set_last_upload_date();
 
@@ -141,7 +138,7 @@ class HoursImport_Plugin
     }
 
     // Writes the csv to the myCREDs table.
-    public static function write_csv_to_my_creds($hours_array) {
+    public static function write_csv_to_my_creds($hours_array, $emailsToUserIDs) {
         // This creates a myCRED instance for the "points" currency type.
         $mycred = mycred('points');
 
@@ -155,7 +152,7 @@ class HoursImport_Plugin
             // Convert the email to a WooCommerce user id.
             // If the conversion fails, we can create a new account for the user.
             // This gives us the user's new id, allowing the process to continue.
-            $user_id = HoursImport_Plugin::convert_email_to_id($email);
+            $user_id = emailsToUserIDs[$email];
             if (is_null($user_id)) {
                 $user_id = HoursImport_Plugin::create_woo_commerce_user_id($email);
             }
@@ -174,15 +171,26 @@ class HoursImport_Plugin
         }
     }
 
-    // Converts the given email to their WooCommerce user id.
-    public static function convert_email_to_id($email) {
-        return $email; // todo Lookup the email and get its user id.
-    }
-
-    // Creates a WooCommerce user id for the given email.
+    // Creates a customer account in the WooCommerce table with the given email.
     // The id is then returned.
     public static function create_woo_commerce_user_id($email) {
-        return $email; // todo Create the id for the email and return it here.
+        // https://woocommerce.github.io/woocommerce-rest-api-docs/#create-a-customer
+        $woocommerce = new Client(
+            URL,
+            CONSUMER_KEY,
+            CONSUMER_SECRET_KEY,
+            [
+                'wp_api' => true,
+                'version' => 'wc/v3'
+            ]
+        );
+
+        $data = [
+            'email' => $email,
+        ];
+
+        $response = $woocommerce->post('customers', $data);
+        return $response->id;
     }
 
     // Converts the given hours to "points", where "points" is the currency users
@@ -191,7 +199,7 @@ class HoursImport_Plugin
         return 12.5 * $hours;
     }
 
-    // Gets a map of customer emails to user ids
+    // Gets a map of customer emails to user ids from the WooCommerce table
     public static function get_all_woo_commerce_users_ids() {
         // https://woocommerce.github.io/woocommerce-rest-api-docs/#list-all-customers
         $woocommerce = new Client(
@@ -212,29 +220,6 @@ class HoursImport_Plugin
             $emailsToUserIDs[$email] = $user_id;
         }
         return $emailsToUserIDs;
-    }
-
-    // TODO this is just an example of what we want to do for create_woo_commerce_id
-    public static function add_new_woo_commerce_user() {
-        $woocommerce = new Client(
-            URL,
-            CONSUMER_KEY,
-            CONSUMER_SECRET_KEY,
-            [
-                'wp_api' => true,
-                'version' => 'wc/v3'
-            ]
-        );
-
-        $data = [
-            'email' => 'john.doe2@example.com',
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'username' => 'john.doe2',
-            'password' => 'create_password',
-        ];
-
-        print_r($woocommerce->post('customers', $data));
     }
 
     // Writes the current date to the database.
