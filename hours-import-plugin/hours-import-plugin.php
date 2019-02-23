@@ -320,6 +320,7 @@ class HoursImport_Plugin
 
     // Gets a map of customer emails to user ids from the WooCommerce table
     public static function get_all_woo_commerce_users_ids() {
+        $emailsToUserIDs = [];
         $customers = get_users([
             'role' => 'Customer',
         ]);
