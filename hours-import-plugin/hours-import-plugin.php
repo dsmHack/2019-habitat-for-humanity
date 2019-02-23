@@ -9,8 +9,8 @@ class HoursImport_Plugin {
     // Registers the WordPress callbacks.
     public static function init() {
         add_action('admin_menu', array(__CLASS__, 'handle_admin_menu'));
-        add_action('user_register', 'handle_register_user');
-        add_action('wp_login', 'handle_user_login');
+        add_action('user_register', array(__CLASS__, 'handle_register_user'));
+        add_action('wp_login', array(__CLASS__, 'handle_user_login'));
     }
 
     // Adds this plugin to the Tools WordPress section.
