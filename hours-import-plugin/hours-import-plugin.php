@@ -154,9 +154,16 @@ class HoursImport_Plugin
         if (!empty($_FILES['volunteer_hours_csv']['tmp_name'])) {
             $filename = $_FILES['volunteer_hours_csv']['tmp_name'];
             $csv_file = file($filename);
-            $hours_array = str_getcsv($csv_file);
+            $csv_emails_to_users = $this->flatten_csv($csv_file); // returns {email:User}
+            $woocommerce_emails_to_ids = HoursImport_Plugin::get_all_woo_commerce_users_ids(); // returns {emails:user_id}
 
-            $emailsToUserIDs = HoursImport_Plugin::get_all_woo_commerce_users_ids();
+            $email_to_new_user = [];
+            foreach ($csv_emails_to_users as $csv_email => $csv_user) {
+                if (!array_key_exists($csv_email, $woocommerce_emails_to_ids)) {
+                    $email_to_new_user[$csv_email] = $csv_user;
+                }
+            }
+
             HoursImport_Plugin::write_csv_to_my_creds($hours_array, $emailsToUserIDs);
 
             HoursImport_Plugin::set_last_upload_date();
@@ -165,6 +172,7 @@ class HoursImport_Plugin
         }
     }
 
+    // Takes in a csv_file and returns map of emails to User objects containing the number of hours worked.
     function flatten_csv($csv_file) {
         $emails_to_users = [];
         $first_name_header_field_index = 1;
