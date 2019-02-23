@@ -166,15 +166,23 @@ class HoursImport_Plugin
             $csv_emails_to_users = $this->flatten_csv($csv_file); // returns {email:User}
             $woocommerce_emails_to_ids = HoursImport_Plugin::get_all_woo_commerce_users_ids(); // returns {emails:user_id}
 
-            $email_to_new_user = [];
+            $emails_to_new_users = [];
             foreach ($csv_emails_to_users as $csv_email => $csv_user) {
                 if (!array_key_exists($csv_email, $woocommerce_emails_to_ids)) {
-                    $email_to_new_user[$csv_email] = $csv_user;
+                    $emails_to_new_users[$csv_email] = $csv_user;
                 }
             }
 
-            HoursImport_Plugin::write_csv_to_my_creds($hours_array, $emailsToUserIDs);
+            $new_woocommerce_emails_to_ids = HoursImport_Plugin::batch_create_woo_commerce_users($emails_to_new_users);
 
+            foreach ($csv_emails_to_users as $csv_email => $csv_user) {
+                $csv_user->id = $woocommerce_emails_to_ids[$csv_email];
+                if (is_null($csv_user->id)) {
+                    $csv_user->id = $new_woocommerce_emails_to_ids[$csv_email];
+                }
+            }
+
+            HoursImport_Plugin::add_hours_to_mycred($csv_emails_to_users);
             HoursImport_Plugin::set_last_upload_date();
 
             echo "success";
@@ -223,6 +231,20 @@ class HoursImport_Plugin
         }
 
         return $emails_to_users;
+    }
+
+    public static function add_hours_to_mycred($emails_to_users) {
+        // This creates a myCRED instance for the "points" currency type.
+        $mycred = mycred('points');
+
+        foreach ($emails_to_users as $user) {
+            $mycred->add_creds(
+                'csv_import',
+                $user->id,
+                HoursImport_Plugin::convert_hours_to_points($user->hours_worked),
+                'import volunteer hours'
+            );
+        }
     }
 
     // Writes the csv to the myCREDs table.
