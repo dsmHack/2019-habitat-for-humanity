@@ -21,7 +21,7 @@ class HoursImport_Plugin {
             'Volunteer Hours Watcher',
             // Capability requirements
             'import',
-            // Menu slug ????
+            // Menu slug (?page=gdm-habitat-hours-import)
             'gdm-habitat-hours-import',
             // On success callback
             array(__CLASS__, 'add_credential_settings')
