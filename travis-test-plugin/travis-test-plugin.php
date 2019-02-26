@@ -6,11 +6,9 @@
  */
 
 class TravisTest_Plugin {
-    // Registers the WordPress callbacks.
-    public static function init() {
-        add_action('admin_menu', array(__CLASS__, 'handle_admin_menu'));
-        // add_action('user_register', 'handle_register_user');
-        // add_action('wp_login', 'handle_user_login');
+    public function __construct() {
+        add_action('admin_menu', array( $this, 'handle_admin_menu'));
+        add_action('plugins_loaded', array( $this, 'plugins_loaded')); 
     }
 
     // Adds this plugin to the Tools WordPress section.
@@ -25,43 +23,28 @@ class TravisTest_Plugin {
             // Menu slug ????
             'travis-test-import',
             // On success callback
-            array(__CLASS__, 'add_credential_settings')
+            array($this, 'display_management_page')
         );
     }
 
+    public function plugins_loaded() {
+        // runs on every page after plugins have loaded
+    }
+
     // Adds the HTML for changing the Salesforce credentials.
-    public function add_credential_settings() {
-        echo "hey!";
-        // todo Write the HTML for changing the Salesforce credentials.
-        // todo Write the credentials to a table?
-    }
+    public function display_management_page() {
+        // TODO: This is probably not the right place to read out of the session
+        session_start();
+        if (isset($_SESSION['access_token'])) {
+            update_option("ttp_access_token", $_SESSION['access_token']);
+        }
+        if (isset($_SESSION['refresh_token'])) {
+            update_option("ttp_refresh_token", $_SESSION['refresh_token']);
+        }
 
-    // Callback for when a user registers.
-    public function handle_register_user() {
-        $user = wp_get_current_user();
-
-        // todo
-        // requests all hours this email has worked since today's date
-        // records the the date on this user's metainfo
-
-        echo '
-        <script>
-            console.log("user registered: ' . $user->user_email . '");
-        </script>
-        ';
-    }
-
-    public function handle_user_login() {
-        $user = wp_get_current_user();
-
-        // todo
-        // requests all hours this email has worked since this user's metainfo
-
-        echo '
-        <script>
-            console.log("user logged in: ' . $user->user_email . '");
-        </script>
-        ';
+        echo "<a href='/wp-content/plugins/travis-test-plugin/oauth.php' target='_blank'>Re-authenticate</a><br/>";
+        echo "Access token: " . get_option("ttp_access_token") . "<br/>";
+        echo "Refresh token: " . get_option("ttp_refresh_token") . "<br/>";
     }
 
     // Fetches the hours for the given user for the given start date and end date.
@@ -88,4 +71,4 @@ class TravisTest_Plugin {
     }
 }
 
-TravisTest_Plugin::init();
+$TravisTestPlugin = new TravisTest_Plugin();

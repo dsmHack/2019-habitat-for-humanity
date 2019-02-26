@@ -55,5 +55,5 @@ $_SESSION['access_token'] = $access_token;
 $_SESSION['instance_url'] = $instance_url;
 $_SESSION['refresh_token'] = $refresh_token;
 
-header( 'Location: demo_rest.php' ) ;
+header( 'Location: /wp-admin/tools.php?page=travis-test-import' ) ;
 ?>
