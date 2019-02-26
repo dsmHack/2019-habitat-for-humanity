@@ -75,7 +75,7 @@ EOF;
     // Updates the user's hours by hitting a Salesforce api (see fetch_hours).
     // Those hours are written to the user's myCRED row.
     public function update_user_hours() {
-        $user = wp_get_current_user($login);
+        $user = wp_get_current_user();
         if (is_null($user) or empty($user->id)) {
             // If the user object doesn't have an id, we can't proceed.
             return;
