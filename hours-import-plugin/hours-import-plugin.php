@@ -21,7 +21,7 @@ class HoursImport_Plugin {
             'Volunteer Hours Watcher',
             // Capability requirements
             'import',
-            // Menu slug ????
+            // Menu slug (?page=gdm-habitat-hours-import)
             'gdm-habitat-hours-import',
             // On success callback
             array(__CLASS__, 'add_credential_settings')
@@ -46,7 +46,7 @@ class HoursImport_Plugin {
     }
 
     // Fetches the last known start date for the user.
-    public static function fetch_start_date($user) {
+    public static function fetch_start_date($user_id) {
         $start_date = get_user_meta($user_id, 'last_fetch_date', true);
         if (is_null($start_date)) {
             $start_date = '2019-Jan-01';
@@ -72,7 +72,6 @@ class HoursImport_Plugin {
 
         update_user_meta($user_id, 'last_fetch_date', today());
     }
-
 
     public static function today() {
         return date('Y-M-D');
