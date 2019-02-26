@@ -31,25 +31,47 @@ class TravisTest_Plugin {
     }
 
     public function plugins_loaded() {
-        // runs on every page after plugins have loaded
+        // runs on every page (admin and front-end) after plugins have loaded
     }
 
     // Adds the HTML for changing the Salesforce credentials.
     public function display_management_page() {
-        // TODO: This is probably not the right place to read out of the session
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (isset($_SESSION['access_token'])) {
             update_option("ttp_access_token", $_SESSION['access_token']);
         }
         if (isset($_SESSION['refresh_token'])) {
             update_option("ttp_refresh_token", $_SESSION['refresh_token']);
         }
+        if (isset($_SESSION['instance_url'])) {
+            update_option("ttp_instance_url", $_SESSION['instance_url']);
+        }
 
-        echo "<a href='/wp-content/plugins/travis-test-plugin/oauth.php' target='_blank'>Re-authenticate</a><br/>";
-        echo "Access token: " . get_option("ttp_access_token") . "<br/>";
-        echo "Refresh token: " . get_option("ttp_refresh_token") . "<br/>";
+        $access_token = get_option("ttp_access_token");
+        $refresh_token = get_option("ttp_refresh_token");
+        $instance_url = get_option("ttp_instance_url");
+
+        echo <<<EOF
+        <h1>SalesForce + myCRED integration details</h1>
+        <table>
+            <tr>
+                <td>Access token</td><td>$access_token</td>
+            </tr>
+            <tr>
+                <td>Refresh token</td><td>$refresh_token</td>
+            </tr>
+            <tr>
+                <td>Instance URL</td><td>$instance_url</td>
+            </tr>
+        </table>
+
+        <p>Click <a href='/wp-content/plugins/travis-test-plugin/oauth.php' target='_blank'>here</a> to re-authenticate with SalesForce.</p>
+EOF;
     }
-    
+
     // Updates the user's hours by hitting a Salesforce api (see fetch_hours).
     // Those hours are written to the user's myCRED row.
     public function update_user_hours() {
@@ -84,7 +106,20 @@ class TravisTest_Plugin {
 
     // Returns the hours the user has worked between the two dates.
     public function fetch_hours($email, $start_date, $end_date) {
-        // todo Make a GET request to salesforce and get the hours. Return them.
+        $access_token = get_option("ttp_access_token");
+        $query = "SELECT GW_Volunteers__Total_Hours_Worked__c FROM GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__r.Email = '$email'";
+        $url = "$instance_url/services/data/v20.0/query?q=" . urlencode($query);
+    
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER,
+                array("Authorization: OAuth $access_token"));
+    
+        $json_response = curl_exec($curl);
+        curl_close($curl);
+        
+        // TODO: Pull the actual info out of the query instead of returning 1
         return 1;
     }
 
