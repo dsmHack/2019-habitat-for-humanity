@@ -107,7 +107,8 @@ EOF;
     // Returns the hours the user has worked between the two dates.
     public function fetch_hours($email, $start_date, $end_date) {
         $access_token = get_option("ttp_access_token");
-        $query = "SELECT GW_Volunteers__Total_Hours_Worked__c FROM GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__r.Email = '$email'";
+        $query = "SELECT+SUM(GW_Volunteers__Total_Hours_Worked__c)+FROM+GW_Volunteers__Volunteer_Hours__c+WHERE+CreatedDate+>+" . $start_date . "T00:00:00.000Z+AND+CreatedDate+<+" .$end_date . "T00:00:00.000Z+AND+GW_Volunteers__Contact__r.Email+=+'" . $email . "'+AND+GW_Volunteers__Total_Hours_Worked__c+>+0+GROUP+BY+GW_Volunteers__Contact__r.Email";
+        $instance_url = get_option("ttp_instance_url");
         $url = "$instance_url/services/data/v20.0/query?q=" . urlencode($query);
     
         $curl = curl_init($url);
