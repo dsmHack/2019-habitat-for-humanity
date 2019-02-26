@@ -120,7 +120,8 @@ EOF;
         $json_response = curl_exec($curl);
         curl_close($curl);
 
-        return $json_response["records"][0]["expr0"];
+        $response = json_decode($json_response, true);
+        return $response["records"][0]["expr0"];
     }
 
     // Adds the given hours to the given user id in the myCRED table.
