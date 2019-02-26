@@ -73,7 +73,6 @@ class HoursImport_Plugin {
         update_user_meta($user_id, 'last_fetch_date', today());
     }
 
-
     public static function today() {
         return date('Y-M-D');
     }
