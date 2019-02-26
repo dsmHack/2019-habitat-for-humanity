@@ -107,7 +107,7 @@ EOF;
     // Returns the hours the user has worked between the two dates.
     public function fetch_hours($email, $start_date, $end_date) {
         $access_token = get_option("ttp_access_token");
-        $query = "SELECT SUM(GW_Volunteers__Total_Hours_Worked__c) FROM GW_Volunteers__Volunteer_Hours__c WHERE CreatedDate > " . $start_date . "T00:00:00.000Z AND CreatedDate < " . $end_date . "T00:00:00.000Z AND GW_Volunteers__Contact__r.Email = '" .$email . "' AND GW_Volunteers__Total_Hours_Worked__c > 0 GROUP BY GW_Volunteers__Contact__r.Email";
+        $query = "SELECT SUM(GW_Volunteers__Total_Hours_Worked__c) FROM GW_Volunteers__Volunteer_Hours__c WHERE CreatedDate > " . $start_date . "T00:00:00.000Z AND CreatedDate < " . $end_date . "T00:00:00.000Z AND GW_Volunteers__Contact__r.Email = '" . $email . "' AND GW_Volunteers__Total_Hours_Worked__c > 0 GROUP BY GW_Volunteers__Contact__r.Email";
         $instance_url = get_option("ttp_instance_url");
         $url = "$instance_url/services/data/v20.0/query?q=" . urlencode($query);
     
@@ -120,8 +120,7 @@ EOF;
         $json_response = curl_exec($curl);
         curl_close($curl);
 
-        // TODO: Pull the actual info out of the query instead of returning 1
-        return 1;
+        return $json_response["records"][0]["expr0"];
     }
 
     // Adds the given hours to the given user id in the myCRED table.
