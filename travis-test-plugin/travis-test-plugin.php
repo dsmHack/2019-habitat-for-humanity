@@ -1,11 +1,12 @@
 <?php
 /**
- *  Plugin Name: Travis Test
+ *  Plugin Name: Store Credit Calculator
  *  Author: Travis Sanderson (travis.sanderson@workiva.com)
- *
  */
 
-class TravisTest_Plugin {
+require_once "management_page.php";
+
+class StoreCreditCalculator_Plugin {
     public function __construct() {
         add_action('admin_menu', array($this, 'handle_admin_menu'));
         add_action('plugins_loaded', array($this, 'plugins_loaded')); 
@@ -18,13 +19,13 @@ class TravisTest_Plugin {
     public function handle_admin_menu() {
         add_management_page(
             // Page title
-            'Travis Test',
+            'Store Credit Calculator',
             // Menu title
-            'Travis Test',
+            'Store Credit Calculator',
             // Capability requirements
             'import',
             // Menu slug (?page=travis-test-import)
-            'travis-test-import',
+            'travis-test-import', // to change this we need to modify the callback URL in our SalesForce oauth config
             // On success callback
             array($this, 'display_management_page')
         );
@@ -36,40 +37,7 @@ class TravisTest_Plugin {
 
     // Adds the HTML for changing the Salesforce credentials.
     public function display_management_page() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        if (isset($_SESSION['access_token'])) {
-            update_option("ttp_access_token", $_SESSION['access_token']);
-        }
-        if (isset($_SESSION['refresh_token'])) {
-            update_option("ttp_refresh_token", $_SESSION['refresh_token']);
-        }
-        if (isset($_SESSION['instance_url'])) {
-            update_option("ttp_instance_url", $_SESSION['instance_url']);
-        }
-
-        $access_token = get_option("ttp_access_token");
-        $refresh_token = get_option("ttp_refresh_token");
-        $instance_url = get_option("ttp_instance_url");
-
-        echo <<<EOF
-        <h1>SalesForce + myCRED integration details</h1>
-        <table>
-            <tr>
-                <td>Access token</td><td>$access_token</td>
-            </tr>
-            <tr>
-                <td>Refresh token</td><td>$refresh_token</td>
-            </tr>
-            <tr>
-                <td>Instance URL</td><td>$instance_url</td>
-            </tr>
-        </table>
-
-        <p>Click <a href='/wp-content/plugins/travis-test-plugin/oauth.php' target='_blank'>here</a> to re-authenticate with SalesForce.</p>
-EOF;
+        display_management_page();
     }
 
     // Updates the user's hours by hitting a Salesforce api (see fetch_hours).
@@ -142,4 +110,4 @@ EOF;
     }
 }
 
-$TravisTestPlugin = new TravisTest_Plugin();
+$StoreCreditCalculator = new StoreCreditCalculator_Plugin();
