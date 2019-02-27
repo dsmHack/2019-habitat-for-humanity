@@ -1,7 +1,14 @@
 <?php
-function refresh_access_token() {
+function manual_refresh_access_token() {
     echo "Updating access token...<br/>";
 
+    refresh_access_token();
+
+    header( 'Location: /wp-admin/tools.php?page=store-credit-calculator' );
+    exit();
+}
+
+function refresh_access_token() {
     $token_url = "https://login.salesforce.com/services/oauth2/token";
 
     $params = "grant_type=refresh_token"
@@ -40,8 +47,5 @@ function refresh_access_token() {
 
     $_SESSION['access_token'] = $access_token;
     $_SESSION['instance_url'] = $instance_url;
-
-    header( 'Location: /wp-admin/tools.php?page=store-credit-calculator' );
-    exit();
 }
 ?>

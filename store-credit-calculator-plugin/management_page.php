@@ -20,7 +20,7 @@ function display_management_page($plugin) {
 
     if ($_GET['refresh_access_token'] == "true") {
         require_once "refresh_access_token.php";
-        refresh_access_token();
+        manual_refresh_access_token();
     }
 
     if (isset($_SESSION['access_token'])) {
