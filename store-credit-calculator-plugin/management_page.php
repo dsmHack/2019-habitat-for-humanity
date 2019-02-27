@@ -36,6 +36,8 @@ function display_management_page() {
 ?>
 
 <h1>SalesForce + myCRED integration details</h1>
+
+<h2>Settings</h2>
 <form action="" method="POST">
 <table>
     <tr>
@@ -50,6 +52,43 @@ function display_management_page() {
 <button type="submit">Save</button>
 </form>
 
+<h2>Debug Tools</h2>
+<h4>Lookup User Meta</h4>
+<form action="" method="POST">
+Email to look up: <input type="text" name="lookup_user_by_email" value="<?php echo $_POST['lookup_user_by_email']; ?>" /> <button type="submit">look up</button></br>
+</form>
+<?php
+if (isset($_POST['lookup_user_by_email']) || isset($_POST['user_id_to_override'])) {
+    if (isset($_POST['user_id_to_override'])) {
+        update_user_meta($_POST['user_id_to_override'], 'last_fetch_date', $_POST['override_last_fetch']);
+        $looked_up_user = get_user_by("id", $_POST['user_id_to_override']);
+    } else {
+        $looked_up_user = get_user_by("email", $_POST['lookup_user_by_email']);
+    }
+    if ($looked_up_user) {
+        $last_fetched = $looked_up_user->get('last_fetch_date');
+        if ($last_fetched == null) {
+            $last_fetched = "<i>never</i>";
+        }
+    } else {
+        $last_fetched = "<i>no user with that email was found</i>";
+    }
+    
+    echo "User credits were last fetched at: " . $last_fetched . ".<br/>";
+    ?>
+<form action="" method="POST">
+Manually override last fetch to: <input type="text" name="override_last_fetch" />
+<input type="hidden" name="user_id_to_override" value="<?php echo $looked_up_user->id; ?>"/>
+<button type="submit">OVERRIDE (this is not undoable!)</button>
+</form>
+    <?php
+    if (isset($_POST['user_id_to_override'])) {
+        echo "</br><b>Successfully overrode user's last_fetch_date.</b><br/>";
+    }
+}
+?>
+
+<h4>OAuth Configuration</h4>
 <table>
     <tr>
         <td>Access token</td><td><?php echo get_option("ttp_access_token"); ?></td>
@@ -62,6 +101,7 @@ function display_management_page() {
     </tr>
 </table>
 
+<h4>Reauthenticate with SalesForce</h4>
 <p>Click <a href='tools.php?page=store-credit-calculator&reauth=true'>here</a> to re-authenticate with SalesForce.</p>
     
 <?
