@@ -39,9 +39,14 @@ function display_management_page($plugin) {
         update_option("ttp_client_secret", $_POST["ttp_client_secret"]);
     }
 ?>
+<div style="max-width: 50rem">
+<h1>Store Credit Calculator</h1>
 
-<h1>SalesForce + myCRED integration details</h1>
-<h2>Settings</h2>
+<p>This tool was initially created at the 2019 dsmHack.  The plugin will function automatically, it 
+populates user's myCred balance by querying SalesForce for new volunteer hours.  This page is only 
+for debugging issues or re-authenticating with SalesForce if necessary.</p>
+
+<h2>Connected App Settings</h2>
 <form action="" method="POST">
 <table>
     <tr>
@@ -53,11 +58,16 @@ function display_management_page($plugin) {
         <td><input type="text" name="ttp_client_secret" value="<?php echo get_option("ttp_client_secret"); ?>"/></td>
     </tr>
 </table>
-<button type="submit">Save</button>
+<button type="submit">Update</button>
 </form>
 
 <h2>Debug Tools</h2>
-<h4>Lookup User Meta</h4>
+<h4>Lookup a User's Last Fetched Date</h4>
+
+<p>The plugin records when it last updated each user so when the user returns to the site it can 
+calculate the difference and add any volunteer hours since last time.  This tool lets you look 
+up the user's recorded last fetch time, as well as modify it (this should be done for testing only)</p>
+
 <form action="" method="POST">
 Email to look up: <input type="text" name="lookup_user_by_email" value="<?php echo $_POST['lookup_user_by_email']; ?>" /> <button type="submit">look up</button></br>
 </form>
@@ -93,7 +103,10 @@ Manually override last fetch to: <input type="text" name="override_last_fetch" /
 ?>
 
 <h4>Query Volunteer Hours</h4>
-Note: this only queries SalesForce for hours, it does not add any credit to the user's account.
+
+<p>This tool lets you test the query capability by providing a user email, start and stop time.  
+The tool will tell you how many volunteer hours were recorded for that email between those dates.</p>
+
 <form action="" method="POST">
 <table>
     <tr>
@@ -125,23 +138,24 @@ Note: this only queries SalesForce for hours, it does not add any credit to the 
 </p>
 <?php } ?>
 
-<h4>OAuth Configuration</h4>
+<h4>OAuth Configuration (read only)</h4>
 <table>
     <tr>
-        <td>Access token</td><td><?php echo get_option("ttp_access_token"); ?></td>
+        <td>Access token</td><td><input readonly value="<?php echo get_option("ttp_access_token"); ?>" /></td>
     </tr>
     <tr>
-        <td>Refresh token</td><td><?php echo get_option("ttp_refresh_token"); ?></td>
+        <td>Refresh token</td><td><input readonly value="<?php echo get_option("ttp_refresh_token"); ?>" /></td>
     </tr>
     <tr>
-        <td>Instance URL</td><td><?php echo get_option("ttp_instance_url"); ?></td>
+        <td>Instance URL</td><td><input readonly value="<?php echo get_option("ttp_instance_url"); ?>" /></td>
     </tr>
 </table>
 
 <h4>Reauthenticate with SalesForce</h4>
-<p>Click <a href='tools.php?page=store-credit-calculator&refresh_access_token=true'>here</a> to update the access_token.</p>
-<p>Click <a href='tools.php?page=store-credit-calculator&reauth=true'>here</a> to re-authenticate with SalesForce.</p>
-    
+<p>Click <a href='tools.php?page=store-credit-calculator&refresh_access_token=true'>here</a> to manually update the access_token using the existing refresh_token.</p>
+<p>Click <a href='tools.php?page=store-credit-calculator&reauth=true'>here</a> to re-establish an OAuth connection with SalesForce.  This will create a new refresh_token and access_token.</p>
+
+</div>
 <?
 }
 ?>
