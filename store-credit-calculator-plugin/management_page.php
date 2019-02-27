@@ -18,6 +18,11 @@ function display_management_page() {
         handle_oauth_callback();
     }
 
+    if ($_GET['refresh_access_token'] == "true") {
+        require_once "refresh_access_token.php";
+        refresh_access_token();
+    }
+
     if (isset($_SESSION['access_token'])) {
         update_option("ttp_access_token", $_SESSION['access_token']);
     }
@@ -102,6 +107,7 @@ Manually override last fetch to: <input type="text" name="override_last_fetch" /
 </table>
 
 <h4>Reauthenticate with SalesForce</h4>
+<p>Click <a href='tools.php?page=store-credit-calculator&refresh_access_token=true'>here</a> to update the access_token.</p>
 <p>Click <a href='tools.php?page=store-credit-calculator&reauth=true'>here</a> to re-authenticate with SalesForce.</p>
     
 <?
