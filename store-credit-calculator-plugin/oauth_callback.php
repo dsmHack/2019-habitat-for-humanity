@@ -14,7 +14,7 @@ function handle_oauth_callback() {
         . "&grant_type=authorization_code"
         . "&client_id=" . get_option("ttp_client_id")
         . "&client_secret=" . get_option("ttp_client_secret")
-        . "&redirect_uri=" . "https://store.gdmhabitat.org/wp-admin/tools.php?page=travis-test-import&oauth_callback=true";
+        . "&redirect_uri=" . "https://store.gdmhabitat.org/wp-admin/tools.php?page=store-credit-calculator&oauth_callback=true";
 
     $curl = curl_init($token_url);
     curl_setopt($curl, CURLOPT_HEADER, false);
@@ -54,7 +54,7 @@ function handle_oauth_callback() {
     $_SESSION['instance_url'] = $instance_url;
     $_SESSION['refresh_token'] = $refresh_token;
 
-    header( 'Location: /wp-admin/tools.php?page=travis-test-import' );
+    header( 'Location: /wp-admin/tools.php?page=store-credit-calculator' );
     exit();
 }
 ?>

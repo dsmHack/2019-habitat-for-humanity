@@ -4,7 +4,7 @@ function display_management_page() {
     if ($_GET['reauth'] == "true") {
         $auth_url = "https://login.salesforce.com"
         . "/services/oauth2/authorize?response_type=code&client_id="
-        . get_option("ttp_client_id") . "&redirect_uri=" . urlencode("https://store.gdmhabitat.org/wp-admin/tools.php?page=travis-test-import&oauth_callback=true");
+        . get_option("ttp_client_id") . "&redirect_uri=" . urlencode("https://store.gdmhabitat.org/wp-admin/tools.php?page=store-credit-calculator&oauth_callback=true");
 
         header('Location: ' . $auth_url);
     }
@@ -62,7 +62,7 @@ function display_management_page() {
     </tr>
 </table>
 
-<p>Click <a href='tools.php?page=travis-test-import&reauth=true'>here</a> to re-authenticate with SalesForce.</p>
+<p>Click <a href='tools.php?page=store-credit-calculator&reauth=true'>here</a> to re-authenticate with SalesForce.</p>
     
 <?
 }

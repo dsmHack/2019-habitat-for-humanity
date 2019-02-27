@@ -24,8 +24,8 @@ class StoreCreditCalculator_Plugin {
             'Store Credit Calculator',
             // Capability requirements
             'import',
-            // Menu slug (?page=travis-test-import)
-            'travis-test-import', // to change this we need to modify the callback URL in our SalesForce oauth config
+            // Menu slug (?page=store-credit-calculator)
+            'store-credit-calculator',
             // On success callback
             array($this, 'display_management_page')
         );
