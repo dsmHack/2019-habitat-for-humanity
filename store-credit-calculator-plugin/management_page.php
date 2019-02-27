@@ -1,6 +1,6 @@
 <?php
 
-function display_management_page() {
+function display_management_page($plugin) {
     if ($_GET['reauth'] == "true") {
         $auth_url = "https://login.salesforce.com"
         . "/services/oauth2/authorize?response_type=code&client_id="
@@ -41,7 +41,6 @@ function display_management_page() {
 ?>
 
 <h1>SalesForce + myCRED integration details</h1>
-
 <h2>Settings</h2>
 <form action="" method="POST">
 <table>
@@ -92,6 +91,39 @@ Manually override last fetch to: <input type="text" name="override_last_fetch" /
     }
 }
 ?>
+
+<h4>Query Volunteer Hours</h4>
+Note: this only queries SalesForce for hours, it does not add any credit to the user's account.
+<form action="" method="POST">
+<table>
+    <tr>
+        <td>
+            Email
+        </td>
+        <td>
+            <input type="text" name="query_email" value="<?php echo $_POST['query_email']; ?>" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Start Date (e.g. 2019-01-31)
+        </td>
+        <td>
+            <input type="text" name="query_start_date" value="<?php echo $_POST['query_start_date']; ?>" />
+        </td>
+    </tr>
+    <tr>
+        <td>End Date (e.g. 2019-02-28)</td>
+        <td><input type="text" name="query_end_date" value="<?php echo $_POST['query_end_date']; ?>" />
+    </tr>
+</table>
+<button type="submit">Query</button>
+</form>
+<?php if (isset($_POST['query_email'])) {?>
+<p>
+    User <?php echo $_POST['query_email']; ?> hours between <?php echo $_POST['query_start_date']; ?> and <?php echo $_POST['query_end_date']; ?> are <b><?php echo $plugin->fetch_hours($_POST['query_email'], $_POST['query_start_date'], $_POST['query_end_date']); ?></b>.
+</p>
+<?php } ?>
 
 <h4>OAuth Configuration</h4>
 <table>

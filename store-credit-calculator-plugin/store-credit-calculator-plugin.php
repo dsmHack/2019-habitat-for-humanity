@@ -37,7 +37,7 @@ class StoreCreditCalculator_Plugin {
 
     // Adds the HTML for changing the Salesforce credentials.
     public function display_management_page() {
-        display_management_page();
+        display_management_page($this);
     }
 
     // Updates the user's hours by hitting a Salesforce api (see fetch_hours).
@@ -89,7 +89,11 @@ class StoreCreditCalculator_Plugin {
         curl_close($curl);
 
         $response = json_decode($json_response, true);
-        return $response["records"][0]["expr0"];
+        if ($response["records"][0]["expr0"]) {
+            return $response["records"][0]["expr0"];
+        }
+
+        return 0;
     }
 
     // Adds the given hours to the given user id in the myCRED table.
