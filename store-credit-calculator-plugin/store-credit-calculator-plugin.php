@@ -82,7 +82,7 @@ class StoreCreditCalculator_Plugin {
         refresh_access_token();
 
         $access_token = $_SESSION["access_token"];
-        $query = "SELECT SUM(GW_Volunteers__Total_Hours_Worked__c) FROM GW_Volunteers__Volunteer_Hours__c WHERE CreatedDate > " . $start_date . "T00:00:00.000Z AND CreatedDate < " . $end_date . "T00:00:00.000Z AND GW_Volunteers__Contact__r.Email = '" . $email . "' AND GW_Volunteers__Total_Hours_Worked__c > 0 GROUP BY GW_Volunteers__Contact__r.Email";
+        $query = "SELECT SUM(GW_Volunteers__Hours_Worked__c) FROM GW_Volunteers__Volunteer_Hours__c WHERE Check_In_Time__c > " . $start_date . "T00:00:00.000Z AND Check_In_Time__c < " . $end_date . "T00:00:00.000Z AND GW_Volunteers__Contact__r.Email = '" . $email . "' AND GW_Volunteers__Hours_Worked__c > 0 GROUP BY GW_Volunteers__Contact__r.Email";
         $instance_url = $_SESSION["instance_url"];
         $url = "$instance_url/services/data/v20.0/query?q=" . urlencode($query);
     
